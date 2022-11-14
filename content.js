@@ -73,12 +73,12 @@ const RunTransform = async function () {
 			} catch { }
 			SetStatus("Нейросеть не отвечает(х" + i + ")...", "#" + (51 * i).toString(16) + "0000");
 		}
+		if (!Generation) throw "Нейросеть не отвечает(х5)";
 		CurrentLog.Generation = GetLog().Generations.length;
 		GetLog().Generations.push(Generation);
 		id("playzone").value = GetLog().Content + Generation;
 	} catch (e) {
 		SetStatus(e, "#FF0000");
-		throw e;
 	}
 	SetStatus();
 	Locked = false;
