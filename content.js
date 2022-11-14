@@ -53,6 +53,7 @@ const OnEdit = function (Event) {
 	});
 };
 
+const LastChars = (String, Length) => String.length > Length ? String.substring(String.length - Length) : String;
 const GetLog = () => Logs[CurrentLog.Log];
 async function FastJSON(url, body) {
 	return await (await fetch(url, body)).json();
@@ -67,7 +68,7 @@ const RunTransform = async function () {
 		var Generation;
 		for (var i = 1; i <= 5; i++) {
 			try {
-				if (Generation = (await FastJSON("https://pelevin.gpt.dobro.ai/generate/", { method: "POST", body: JSON.stringify({ "length": 30, prompt: GetLog().Content }) })).replies[0]) // jshint ignore: line
+				if (Generation = (await FastJSON("https://pelevin.gpt.dobro.ai/generate/", { method: "POST", body: JSON.stringify({ "length": 30, prompt: LastChars(GetLog().Content, 2500) }) })).replies[0]) // jshint ignore: line
 					break;
 			} catch { }
 			SetStatus("Нейросеть не отвечает(х" + i + ")...", "#" + (51 * i).toString(16) + "0000");
