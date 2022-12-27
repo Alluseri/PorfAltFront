@@ -19,12 +19,33 @@ textarea {
 }
 
 #regulator {
-	margin-top: 3%;
 	width: calc(100% - 6%);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	box-sizing: border-box;
+}
+
+#topbar {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-top: 0.25rem;
+	width: 100%;
+}
+
+.setting {
+	display: flex;
+	flex-direction: row;
+	margin-bottom: 0.25rem;
+	width: 100%;
+}
+
+.setting > input {
+	margin-left: 6px;
+	margin-right: 6px;
+	margin-top: 0px;
+	width: 100%;
 }
 
 #playzone {

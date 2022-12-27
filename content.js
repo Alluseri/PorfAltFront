@@ -24,6 +24,9 @@ var CurrentLog = {
 };
 var Logs = [{ Content: "", Generations: [] }];
 
+var MemoryLength = 2500;
+var ResponseLength = 30;
+
 const SetStatus = function (Text, Color) {
 	if (Text) {
 		id("status").style.display = "block";
@@ -35,12 +38,10 @@ const SetStatus = function (Text, Color) {
 };
 
 const OnEdit = function (Event) {
+	Locked = false;
 	SetStatus();
-	var Data = Event.data;
-	if (!Data) {
-		if (['insertText', 'insertLineBreak'].includes(Event.inputType)) Data = '\n';
-		else return;
-	}
+	if (!Event.data && !['insertText', 'insertLineBreak', 'deleteContentBackward', 'deleteContentForward'].includes(Event.inputType))
+		return;
 	if (CurrentLog.Generation == -1) {
 		GetLog().Content = this.value;
 		return;
@@ -53,7 +54,7 @@ const OnEdit = function (Event) {
 	});
 };
 
-const LastChars = (String, Length) => String.length > Length ? String.substring(String.length - Length) : String;
+const LastChars = (String, Length) => (String.length > Length ? String.substring(String.length - Length) : String).trim();
 const GetLog = () => Logs[CurrentLog.Log];
 async function FastJSON(url, body) {
 	return await (await fetch(url, body)).json();
@@ -68,7 +69,7 @@ const RunTransform = async function () {
 		var Generation;
 		for (var i = 1; i <= 5; i++) {
 			try {
-				if (Generation = (await FastJSON("https://pelevin.gpt.dobro.ai/generate/", { method: "POST", body: JSON.stringify({ "length": 30, prompt: LastChars(GetLog().Content, 2500) }) })).replies[0]) // jshint ignore: line
+				if (Generation = (await FastJSON("https://pelevin.gpt.dobro.ai/generate/", { method: "POST", body: JSON.stringify({ "length": ResponseLength, prompt: LastChars(GetLog().Content, MemoryLength) }) })).replies[0]) // jshint ignore: line
 					break;
 			} catch { }
 			SetStatus("Нейросеть не отвечает(х" + i + ")...", "#" + (51 * i).toString(16) + "0000");
@@ -76,7 +77,7 @@ const RunTransform = async function () {
 		if (!Generation) throw "Нейросеть не отвечает(х5)";
 		CurrentLog.Generation = GetLog().Generations.length;
 		GetLog().Generations.push(Generation);
-		id("playzone").value = GetLog().Content + Generation;
+		id("playzone").value = GetLog().Content.trim() + Generation;
 	} catch (e) {
 		SetStatus(e, "#FF0000");
 	}
@@ -121,6 +122,8 @@ const RunSave = function () {
 	localStorage.savedLogs = JSON.stringify(Logs);
 	localStorage.savedCurrent = JSON.stringify(CurrentLog);
 	localStorage.hasSaved = true;
+	localStorage.savedMemorySize = MemoryLength;
+	localStorage.savedOutputLength = ResponseLength;
 	SetStatus("Текущий текст успешно сохранен.", "#00FF00");
 	Locked = false;
 };
@@ -132,6 +135,8 @@ const RunLoad = function () {
 	id("playzone").value = localStorage.savedContent;
 	Logs = JSON.parse(localStorage.savedLogs);
 	CurrentLog = JSON.parse(localStorage.savedCurrent);
+	id("cfg-memory-display").innerText = id("cfg-memory").value = MemoryLength = Number.parseInt(localStorage.savedMemorySize);
+	id("cfg-response-display").innerText = id("cfg-response").value = ResponseLength = Number.parseInt(localStorage.savedOutputLength);
 	SetStatus("Сохраненный текст успешно загружен.", "#00FF00");
 	Locked = false;
 };
@@ -142,4 +147,10 @@ document.addEventListener("DOMContentLoaded", () => {
 	id("btn-redo").onclick = RunRedo;
 	id("btn-save").onclick = RunSave;
 	id("btn-load").onclick = RunLoad;
+	id("cfg-memory").oninput = function () {
+		id("cfg-memory-display").innerText = MemoryLength = Number.parseInt(this.value);
+	}
+	id("cfg-response").oninput = function () {
+		id("cfg-response-display").innerText = ResponseLength = Number.parseInt(this.value);
+	}
 });

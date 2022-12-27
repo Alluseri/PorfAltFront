@@ -12,6 +12,18 @@
 
 <body>
 	<div id="regulator">
+		<div id="topbar">
+			<div class="setting">
+				<span>Память</span>
+				<input type="range" id="cfg-memory" min="100" max="3000" value="2500" step="100"></input>
+				<span id="cfg-memory-display">2500</span>
+			</div>
+			<div class="setting">
+				<span>Ответ</span>
+				<input type="range" id="cfg-response" min="2" max="60" value="30" step="2"></input>
+				<span id="cfg-response-display">30</span>
+			</div>
+		</div>
 		<textarea id="playzone" placeholder="..."></textarea>
 		<span id="status"></span>
 		<div id="playbar">
